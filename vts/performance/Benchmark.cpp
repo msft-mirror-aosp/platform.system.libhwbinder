@@ -82,6 +82,7 @@ static void BM_sendVec(benchmark::State& state, sp<IBenchmark> service) {
 }
 
 static void BM_sendVec_passthrough(benchmark::State& state) {
+    // getService automatically retries
     sp<IBenchmark> service = IBenchmark::getService(gServiceName, true /* getStub */);
     if (service == nullptr) {
         state.SkipWithError("Failed to retrieve benchmark service.");
@@ -93,7 +94,7 @@ static void BM_sendVec_passthrough(benchmark::State& state) {
 }
 
 static void BM_sendVec_binderize(benchmark::State& state) {
-    android::hardware::details::waitForHwService(IBenchmark::descriptor, gServiceName);
+    // getService automatically retries
     sp<IBenchmark> service = IBenchmark::getService(gServiceName);
     if (service == nullptr) {
         state.SkipWithError("Failed to retrieve benchmark service.");
