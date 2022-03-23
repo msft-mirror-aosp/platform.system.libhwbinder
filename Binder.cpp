@@ -129,12 +129,20 @@ status_t BHwBinder::transact(
         }
     }
 
-    return onTransact(code, data, reply, flags, [&](auto& replyParcel) {
-      replyParcel.setDataPosition(0);
-      if (callback != nullptr) {
-        callback(replyParcel);
-      }
-    });
+    status_t err = NO_ERROR;
+    switch (code) {
+        default:
+            err = onTransact(code, data, reply, flags,
+                    [&](auto &replyParcel) {
+                        replyParcel.setDataPosition(0);
+                        if (callback != nullptr) {
+                            callback(replyParcel);
+                        }
+                    });
+            break;
+    }
+
+    return err;
 }
 
 status_t BHwBinder::linkToDeath(
