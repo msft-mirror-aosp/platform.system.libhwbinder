@@ -72,7 +72,7 @@ namespace hardware {
 static const char *kReturnStrings[] = {
     "BR_ERROR",
     "BR_OK",
-    "BR_TRANSACTION",
+    "BR_TRANSACTION/BR_TRANSACTION_SEC_CTX",
     "BR_REPLY",
     "BR_ACQUIRE_RESULT",
     "BR_DEAD_REPLY",
@@ -91,7 +91,6 @@ static const char *kReturnStrings[] = {
     "BR_FROZEN_REPLY",
     "BR_ONEWAY_SPAM_SUSPECT",
     "BR_TRANSACTION_PENDING_FROZEN",
-    "BR_TRANSACTION_SEC_CTX",
 };
 
 static const char *kCommandStrings[] = {
