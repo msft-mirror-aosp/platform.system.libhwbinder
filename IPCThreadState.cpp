@@ -72,7 +72,7 @@ namespace hardware {
 static const char *kReturnStrings[] = {
     "BR_ERROR",
     "BR_OK",
-    "BR_TRANSACTION",
+    "BR_TRANSACTION/BR_TRANSACTION_SEC_CTX",
     "BR_REPLY",
     "BR_ACQUIRE_RESULT",
     "BR_DEAD_REPLY",
@@ -90,7 +90,7 @@ static const char *kReturnStrings[] = {
     "BR_FAILED_REPLY",
     "BR_FROZEN_REPLY",
     "BR_ONEWAY_SPAM_SUSPECT",
-    "BR_TRANSACTION_SEC_CTX",
+    "BR_TRANSACTION_PENDING_FROZEN",
 };
 
 static const char *kCommandStrings[] = {
@@ -1268,6 +1268,10 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
 
     case BR_SPAWN_LOOPER:
         mProcess->spawnPooledThread(false);
+        break;
+
+    case BR_TRANSACTION_PENDING_FROZEN:
+        ALOGW("Sending oneway calls to frozen process.");
         break;
 
     default:
