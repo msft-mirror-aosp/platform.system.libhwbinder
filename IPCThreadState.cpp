@@ -90,7 +90,6 @@ static const char *kReturnStrings[] = {
     "BR_FAILED_REPLY",
     "BR_FROZEN_REPLY",
     "BR_ONEWAY_SPAM_SUSPECT",
-    "BR_TRANSACTION_PENDING_FROZEN",
 };
 
 static const char *kCommandStrings[] = {
@@ -1268,10 +1267,6 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
 
     case BR_SPAWN_LOOPER:
         mProcess->spawnPooledThread(false);
-        break;
-
-    case BR_TRANSACTION_PENDING_FROZEN:
-        ALOGW("Sending oneway calls to frozen process.");
         break;
 
     default:
