@@ -90,6 +90,7 @@ static const char *kReturnStrings[] = {
     "BR_FAILED_REPLY",
     "BR_FROZEN_REPLY",
     "BR_ONEWAY_SPAM_SUSPECT",
+    "BR_TRANSACTION_PENDING_FROZEN",
 };
 
 static const char *kCommandStrings[] = {
