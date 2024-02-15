@@ -72,7 +72,7 @@ namespace hardware {
 static const char *kReturnStrings[] = {
     "BR_ERROR",
     "BR_OK",
-    "BR_TRANSACTION",
+    "BR_TRANSACTION/BR_TRANSACTION_SEC_CTX",
     "BR_REPLY",
     "BR_ACQUIRE_RESULT",
     "BR_DEAD_REPLY",
@@ -90,7 +90,7 @@ static const char *kReturnStrings[] = {
     "BR_FAILED_REPLY",
     "BR_FROZEN_REPLY",
     "BR_ONEWAY_SPAM_SUSPECT",
-    "BR_TRANSACTION_SEC_CTX",
+    "BR_TRANSACTION_PENDING_FROZEN",
 };
 
 static const char *kCommandStrings[] = {
@@ -812,6 +812,10 @@ status_t IPCThreadState::waitForResponse(Parcel *reply, status_t *acquireResult)
         case BR_TRANSACTION_COMPLETE:
             if (!reply && !acquireResult) goto finish;
             break;
+
+        case BR_TRANSACTION_PENDING_FROZEN:
+            ALOGW("Sending oneway calls to frozen process.");
+            goto finish;
 
         case BR_DEAD_REPLY:
             err = DEAD_OBJECT;

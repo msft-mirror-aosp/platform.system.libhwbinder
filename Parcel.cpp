@@ -596,7 +596,7 @@ status_t Parcel::writeString16(const std::unique_ptr<String16>& str)
 
 status_t Parcel::writeString16(const String16& str)
 {
-    return writeString16(str.string(), str.size());
+    return writeString16(str.c_str(), str.size());
 }
 
 status_t Parcel::writeString16(const char16_t* str, size_t len)
@@ -1453,6 +1453,11 @@ status_t Parcel::readNullableNativeHandleNoDup(const native_handle_t **handle,
         // writable memory, and the handle returned from here will actually be
         // used (rather than be ignored).
         if (embedded) {
+            if(!validateBufferParent(parent_buffer_handle, parent_offset)) {
+                ALOGE("Buffer in parent %zu offset %zu invalid.", parent_buffer_handle, parent_offset);
+                return BAD_VALUE;
+            }
+
             binder_buffer_object *parentBuffer =
                 reinterpret_cast<binder_buffer_object*>(mData + mObjects[parent_buffer_handle]);
 
