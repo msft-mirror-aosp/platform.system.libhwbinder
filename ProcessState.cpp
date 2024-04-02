@@ -19,6 +19,7 @@
 #include <hwbinder/ProcessState.h>
 
 #include <cutils/atomic.h>
+#include <hwbinder/HidlSupport.h>
 #include <hwbinder/BpHwBinder.h>
 #include <hwbinder/IPCThreadState.h>
 #include <utils/Log.h>
