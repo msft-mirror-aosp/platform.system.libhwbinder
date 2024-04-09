@@ -11,5 +11,15 @@
         }
       ]
     }
+  ],
+  "postsubmit": [
+    {
+       "name": "CtsOsTestCases",
+       "options": [
+           {
+              "include-filter": "android.os.cts.HwBinderTest"
+           }
+       ]
+    }
   ]
 }
