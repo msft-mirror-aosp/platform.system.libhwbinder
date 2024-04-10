@@ -817,6 +817,10 @@ status_t IPCThreadState::waitForResponse(Parcel *reply, status_t *acquireResult)
             ALOGW("Sending oneway calls to frozen process.");
             goto finish;
 
+        case BR_FROZEN_REPLY:
+            err = FAILED_TRANSACTION;
+            goto finish;
+
         case BR_DEAD_REPLY:
             err = DEAD_OBJECT;
             goto finish;
