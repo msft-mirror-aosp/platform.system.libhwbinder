@@ -106,6 +106,9 @@ sp<ProcessState> ProcessState::init(size_t mmapSize, bool requireMmapSize) {
 
 void ProcessState::startThreadPool()
 {
+    if (!isHwbinderSupportedBlocking()) {
+        ALOGW("HwBinder is not supported on this device but this process is calling startThreadPool");
+    }
     AutoMutex _l(mLock);
     if (!mThreadPoolStarted) {
         mThreadPoolStarted = true;
@@ -317,6 +320,10 @@ status_t ProcessState::setThreadPoolConfiguration(size_t maxThreads, bool caller
     // if the caller joins the pool, then there will be one thread which is impossible.
     LOG_ALWAYS_FATAL_IF(maxThreads == 0 && callerJoinsPool,
            "Binder threadpool must have a minimum of one thread if caller joins pool.");
+
+    if (!isHwbinderSupportedBlocking()) {
+        ALOGW("HwBinder is not supported on this device but this process is calling setThreadPoolConfiguration");
+    }
 
     size_t threadsToAllocate = maxThreads;
 
