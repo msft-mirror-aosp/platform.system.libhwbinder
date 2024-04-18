@@ -10,9 +10,7 @@
           "exclude-annotation": "androidx.test.filters.FlakyTest"
         }
       ]
-    }
-  ],
-  "postsubmit": [
+    },
     {
        "name": "CtsOsTestCases",
        "options": [
