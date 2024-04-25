@@ -20,6 +20,7 @@
 
 #include <hwbinder/Binder.h>
 #include <hwbinder/BpHwBinder.h>
+#include <hwbinder/HidlSupport.h>
 
 #include <android-base/macros.h>
 #include <utils/CallStack.h>
@@ -538,6 +539,10 @@ void IPCThreadState::joinThreadPool(bool isMain)
 {
     LOG_THREADPOOL("**** THREAD %p (PID %d) IS JOINING THE THREAD POOL\n", (void*)pthread_self(), getpid());
 
+    if (!isHwbinderSupportedBlocking()) {
+        ALOGW("HwBinder is not supported on this device, but this process is calling joinThreadPool.");
+    }
+
     mOut.writeInt32(isMain ? BC_ENTER_LOOPER : BC_REGISTER_LOOPER);
 
     status_t result;
@@ -815,6 +820,10 @@ status_t IPCThreadState::waitForResponse(Parcel *reply, status_t *acquireResult)
 
         case BR_TRANSACTION_PENDING_FROZEN:
             ALOGW("Sending oneway calls to frozen process.");
+            goto finish;
+
+        case BR_FROZEN_REPLY:
+            err = FAILED_TRANSACTION;
             goto finish;
 
         case BR_DEAD_REPLY:
