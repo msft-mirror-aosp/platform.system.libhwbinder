@@ -19,6 +19,7 @@
 #include <hwbinder/ProcessState.h>
 
 #include <cutils/atomic.h>
+#include <hwbinder/HidlSupport.h>
 #include <hwbinder/BpHwBinder.h>
 #include <hwbinder/IPCThreadState.h>
 #include <utils/Log.h>
@@ -37,6 +38,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
+#include <mutex>
 
 #define DEFAULT_BINDER_VM_SIZE ((1 * 1024 * 1024) - sysconf(_SC_PAGE_SIZE) * 2)
 #define DEFAULT_MAX_BINDER_THREADS 0
@@ -103,6 +106,9 @@ sp<ProcessState> ProcessState::init(size_t mmapSize, bool requireMmapSize) {
 
 void ProcessState::startThreadPool()
 {
+    if (!isHwbinderSupportedBlocking()) {
+        ALOGW("HwBinder is not supported on this device but this process is calling startThreadPool");
+    }
     AutoMutex _l(mLock);
     if (!mThreadPoolStarted) {
         mThreadPoolStarted = true;
@@ -301,9 +307,9 @@ void ProcessState::spawnPooledThread(bool isMain)
 {
     if (mThreadPoolStarted) {
         String8 name = makeBinderThreadName();
-        ALOGV("Spawning new pooled thread, name=%s\n", name.string());
+        ALOGV("Spawning new pooled thread, name=%s\n", name.c_str());
         sp<Thread> t = new PoolThread(isMain);
-        t->run(name.string());
+        t->run(name.c_str());
     }
 }
 
@@ -314,6 +320,10 @@ status_t ProcessState::setThreadPoolConfiguration(size_t maxThreads, bool caller
     // if the caller joins the pool, then there will be one thread which is impossible.
     LOG_ALWAYS_FATAL_IF(maxThreads == 0 && callerJoinsPool,
            "Binder threadpool must have a minimum of one thread if caller joins pool.");
+
+    if (!isHwbinderSupportedBlocking()) {
+        ALOGW("HwBinder is not supported on this device but this process is calling setThreadPoolConfiguration");
+    }
 
     size_t threadsToAllocate = maxThreads;
 
@@ -358,7 +368,7 @@ size_t ProcessState::getMaxThreads() {
 }
 
 void ProcessState::giveThreadPoolName() {
-    androidSetThreadName( makeBinderThreadName().string() );
+    androidSetThreadName( makeBinderThreadName().c_str() );
 }
 
 static int open_driver()
