@@ -95,7 +95,6 @@ public:
 
     status_t            write(const void* data, size_t len);
     void*               writeInplace(size_t len);
-    status_t            writeUnpadded(const void* data, size_t len);
     status_t            writeInt8(int8_t val);
     status_t            writeUint8(uint8_t val);
     status_t            writeInt16(int16_t val);
