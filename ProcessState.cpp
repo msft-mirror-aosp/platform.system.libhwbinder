@@ -107,7 +107,8 @@ sp<ProcessState> ProcessState::init(size_t mmapSize, bool requireMmapSize) {
 void ProcessState::startThreadPool()
 {
     if (!isHwbinderSupportedBlocking()) {
-        ALOGW("HwBinder is not supported on this device but this process is calling startThreadPool");
+        ALOGW("HwBinder is not supported on this device. Not starting threadpool.");
+        return;
     }
     AutoMutex _l(mLock);
     if (!mThreadPoolStarted) {
