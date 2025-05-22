@@ -16,10 +16,22 @@
 
 #include <cstdint>
 #include <stddef.h>
+#include <string.h>
+#include <sys/cdefs.h>
 
 namespace android::hardware {
 
-// avoid optimizations
-void zeroMemory(uint8_t* data, size_t size);
+inline void zeroMemory(uint8_t* data, size_t size) {
+    #ifdef __BIONIC__
+        if (__builtin_available(android 34, *)) {
+            memset_explicit(data, 0, size);
+            return;
+        }
+    #endif
+    memset(data, 0, size);
+    // Assembly marking to prevent any optimizing compiler from not actually clearing the buffer,
+    // this matches what exactly what memset_explicit does.
+    __asm__ __volatile__("" : : "r"(data) : "memory");
+}
 
 }   // namespace android::hardware
