@@ -17,15 +17,10 @@
 #include "Utils.h"
 #include <hwbinder/HidlSupport.h>
 
-#include <string.h>
 #include <android-base/logging.h>
 #include <android-base/properties.h>
 
 namespace android::hardware {
-
-void zeroMemory(uint8_t* data, size_t size) {
-    memset(data, 0, size);
-}
 
 static bool file_exists(const std::string& file) {
     int res = access(file.c_str(), F_OK);
