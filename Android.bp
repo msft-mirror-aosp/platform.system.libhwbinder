@@ -42,6 +42,8 @@ cc_library_headers {
         "//apex_available:platform",
         "//apex_available:anyapex",
     ],
+    header_libs: ["libutils_headers"],
+    export_header_lib_headers: ["libutils_headers"],
     min_sdk_version: "29",
 }
 
