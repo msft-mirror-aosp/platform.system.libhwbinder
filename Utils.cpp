@@ -41,16 +41,22 @@ static bool waitForHwServiceManager() {
     // TODO(b/31559095): need bionic host so that we can use 'prop_info' returned
     // from WaitForProperty
 #ifdef __ANDROID__
+    static const char* kHwServicemanagerDisabledProperty = "hwservicemanager.disabled";
     static const char* kHwServicemanagerReadyProperty = "hwservicemanager.ready";
 
     using std::literals::chrono_literals::operator""s;
 
-    using android::base::WaitForProperty;
     while (true) {
-        if (base::GetBoolProperty("hwservicemanager.disabled", false)) {
-            return false;
+        if (base::WaitForPropertyCreation(kHwServicemanagerDisabledProperty, 1s)) {
+            break;
         }
-        if (WaitForProperty(kHwServicemanagerReadyProperty, "true", 1s)) {
+        LOG(WARNING) << "Waited for hwservicemanager.disabled for a second, waiting another...";
+    }
+    if (base::GetBoolProperty(kHwServicemanagerDisabledProperty, false)) {
+        return false;
+    }
+    while (true) {
+        if (base::WaitForProperty(kHwServicemanagerReadyProperty, "true", 1s)) {
             return true;
         }
         LOG(WARNING) << "Waited for hwservicemanager.ready for a second, waiting another...";
