@@ -42,15 +42,25 @@ static bool waitForHwServiceManager() {
     // from WaitForProperty
 #ifdef __ANDROID__
     static const char* kHwServicemanagerReadyProperty = "hwservicemanager.ready";
+    static const char* kHwServicemanagerDisabledProperty = "hwservicemanager.disabled";
 
     using std::literals::chrono_literals::operator""s;
 
-    using android::base::WaitForProperty;
+    // Ideally, we want to await either .disabled or .ready to be true, but no
+    // such API exists. As a workaround, newer hwservicemanager guarantees
+    // .disabled will be always initialized even when it's false. With newer
+    // hwservicemanager, we can wait for .disabled first.
+    if (base::GetBoolProperty("hwservicemanager.always_sets_disabled", false)) {
+        while (!base::WaitForPropertyCreation(kHwServicemanagerDisabledProperty, 1s)) {
+            LOG(WARNING) << "Waited for hwservicemanager.disabled for a second, "
+                         << "waiting another...";
+        }
+    }
     while (true) {
-        if (base::GetBoolProperty("hwservicemanager.disabled", false)) {
+        if (base::GetBoolProperty(kHwServicemanagerDisabledProperty, false)) {
             return false;
         }
-        if (WaitForProperty(kHwServicemanagerReadyProperty, "true", 1s)) {
+        if (base::WaitForProperty(kHwServicemanagerReadyProperty, "true", 1s)) {
             return true;
         }
         LOG(WARNING) << "Waited for hwservicemanager.ready for a second, waiting another...";
