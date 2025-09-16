@@ -21,6 +21,7 @@
 #include <hwbinder/Binder.h>
 #include <hwbinder/BpHwBinder.h>
 #include <hwbinder/HidlSupport.h>
+#include <hwbinder/ProcessState.h>
 
 #include <android-base/macros.h>
 #include <utils/CallStack.h>
@@ -363,13 +364,13 @@ const char* IPCThreadState::getCallingSid() const
 
 uid_t IPCThreadState::getCallingUid() const
 {
-    return mCallingUid;
+    return mCallingUid.has_value() ? mCallingUid.value() : getuid();
 }
 
 int64_t IPCThreadState::clearCallingIdentity()
 {
     // ignore mCallingSid for legacy reasons
-    int64_t token = ((int64_t)mCallingUid<<32) | mCallingPid;
+    int64_t token = ((int64_t)getCallingUid()<<32) | mCallingPid;
     clearCaller();
     return token;
 }
@@ -405,7 +406,7 @@ void IPCThreadState::clearCaller()
 {
     mCallingPid = getpid();
     mCallingSid = nullptr;  // expensive to lookup
-    mCallingUid = getuid();
+    mCallingUid.reset();
 }
 
 void IPCThreadState::flushCommands()
@@ -537,7 +538,8 @@ void IPCThreadState::processPostWriteDerefs()
 
 void IPCThreadState::joinThreadPool(bool isMain)
 {
-    LOG_THREADPOOL("**** THREAD %p (PID %d) IS JOINING THE THREAD POOL\n", (void*)pthread_self(), getpid());
+    LOG_THREADPOOL("**** THREAD %p (PID %d) IS JOINING THE THREAD POOL\n", (void*)pthread_self(),
+         getpid());
 
     if (!isHwbinderSupportedBlocking()) {
         ALOGW("HwBinder is not supported on this device, but this process is calling joinThreadPool.");
@@ -1165,7 +1167,7 @@ status_t IPCThreadState::executeCommand(int32_t cmd)
 
             const pid_t origPid = mCallingPid;
             const char* origSid = mCallingSid;
-            const uid_t origUid = mCallingUid;
+            const auto origUid = mCallingUid;
             const int32_t origStrictModePolicy = mStrictModePolicy;
             const int32_t origTransactionBinderFlags = mLastTransactionBinderFlags;
 
