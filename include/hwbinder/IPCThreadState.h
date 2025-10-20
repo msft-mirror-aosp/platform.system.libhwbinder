@@ -23,6 +23,7 @@
 #include <utils/Vector.h>
 
 #include <functional>
+#include <optional>
 
 // WARNING: this code is part of libhwbinder, a fork of libbinder. Generally,
 // this means that it is only relevant to HIDL. Any AIDL- or libbinder-specific
@@ -146,7 +147,7 @@ public:
             const void*         mServingStackPointer;
             pid_t               mCallingPid;
             const char*         mCallingSid;
-            uid_t               mCallingUid;
+            std::optional<uid_t> mCallingUid;
             int32_t             mStrictModePolicy;
             int32_t             mLastTransactionBinderFlags;
             bool                mIsLooper;
